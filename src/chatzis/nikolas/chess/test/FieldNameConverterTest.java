@@ -1,6 +1,6 @@
-package chatzis.nikolas.schachreader.test;
+package chatzis.nikolas.chess.test;
 
-import chatzis.nikolas.schachreader.utils.FieldNameConverter;
+import chatzis.nikolas.chess.utils.FieldNameConverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

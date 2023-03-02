@@ -1,9 +1,9 @@
-package chatzis.nikolas.schachreader.utils;
+package chatzis.nikolas.chess.utils;
 
-import chatzis.nikolas.schachreader.game.Board;
-import chatzis.nikolas.schachreader.game.Player;
-import chatzis.nikolas.schachreader.move.Move;
-import chatzis.nikolas.schachreader.pieces.*;
+import chatzis.nikolas.chess.game.Board;
+import chatzis.nikolas.chess.game.Player;
+import chatzis.nikolas.chess.move.Move;
+import chatzis.nikolas.chess.pieces.*;
 
 public class BoardUtils {
 

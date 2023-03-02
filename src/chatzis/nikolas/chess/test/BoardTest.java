@@ -1,10 +1,8 @@
-package chatzis.nikolas.schachreader.test;
+package chatzis.nikolas.chess.test;
 
-import chatzis.nikolas.schachreader.game.Board;
-import chatzis.nikolas.schachreader.game.Player;
-import chatzis.nikolas.schachreader.move.Move;
-import chatzis.nikolas.schachreader.move.PieceMoveList;
-import chatzis.nikolas.schachreader.utils.BoardUtils;
+import chatzis.nikolas.chess.game.Board;
+import chatzis.nikolas.chess.move.Move;
+import chatzis.nikolas.chess.utils.BoardUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

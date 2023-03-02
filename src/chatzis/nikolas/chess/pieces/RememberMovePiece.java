@@ -1,6 +1,6 @@
-package chatzis.nikolas.schachreader.pieces;
+package chatzis.nikolas.chess.pieces;
 
-import chatzis.nikolas.schachreader.game.Player;
+import chatzis.nikolas.chess.game.Player;
 
 /**
  * Special abstract class for pieces,

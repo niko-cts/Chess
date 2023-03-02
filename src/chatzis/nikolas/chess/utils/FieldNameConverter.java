@@ -1,4 +1,4 @@
-package chatzis.nikolas.schachreader.utils;
+package chatzis.nikolas.chess.utils;
 
 public class FieldNameConverter {
 

@@ -1,4 +1,4 @@
-package chatzis.nikolas.schachreader.game;
+package chatzis.nikolas.chess.game;
 
 import java.util.Objects;
 

@@ -1,8 +1,8 @@
-package chatzis.nikolas.schachreader.pieces;
+package chatzis.nikolas.chess.pieces;
 
-import chatzis.nikolas.schachreader.game.Board;
-import chatzis.nikolas.schachreader.game.Player;
-import chatzis.nikolas.schachreader.move.PieceMoveList;
+import chatzis.nikolas.chess.game.Board;
+import chatzis.nikolas.chess.game.Player;
+import chatzis.nikolas.chess.move.PieceMoveList;
 
 public class Knight extends Piece {
 

@@ -1,9 +1,9 @@
-package chatzis.nikolas.schachreader.game;
+package chatzis.nikolas.chess.game;
 
-import chatzis.nikolas.schachreader.move.Move;
-import chatzis.nikolas.schachreader.move.SpecialMove;
-import chatzis.nikolas.schachreader.pieces.*;
-import chatzis.nikolas.schachreader.utils.BoardUtils;
+import chatzis.nikolas.chess.move.Move;
+import chatzis.nikolas.chess.move.SpecialMove;
+import chatzis.nikolas.chess.pieces.*;
+import chatzis.nikolas.chess.utils.BoardUtils;
 
 import java.util.*;
 

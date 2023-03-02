@@ -1,6 +1,6 @@
-package chatzis.nikolas.schachreader.move;
+package chatzis.nikolas.chess.move;
 
-import chatzis.nikolas.schachreader.pieces.Piece;
+import chatzis.nikolas.chess.pieces.Piece;
 
 /**
  * Class with interface, that gets called as soon as the piece moves.

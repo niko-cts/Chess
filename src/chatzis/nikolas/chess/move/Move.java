@@ -1,6 +1,6 @@
-package chatzis.nikolas.schachreader.move;
+package chatzis.nikolas.chess.move;
 
-import chatzis.nikolas.schachreader.utils.FieldNameConverter;
+import chatzis.nikolas.chess.utils.FieldNameConverter;
 
 /**
  * Move class stores from -> to position

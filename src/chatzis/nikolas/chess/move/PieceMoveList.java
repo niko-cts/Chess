@@ -1,14 +1,13 @@
-package chatzis.nikolas.schachreader.move;
+package chatzis.nikolas.chess.move;
 
-import chatzis.nikolas.schachreader.game.Board;
-import chatzis.nikolas.schachreader.pieces.Piece;
-import chatzis.nikolas.schachreader.pieces.RememberMovePiece;
-import chatzis.nikolas.schachreader.utils.BoardUtils;
+import chatzis.nikolas.chess.game.Board;
+import chatzis.nikolas.chess.pieces.Piece;
+import chatzis.nikolas.chess.pieces.RememberMovePiece;
+import chatzis.nikolas.chess.utils.BoardUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Class, which stores every possible move a piece can make on the given board.
@@ -54,10 +53,6 @@ public class PieceMoveList {
 
     public List<Move> getMoves() {
         return moves;
-    }
-
-    public Optional<Move> findByDestination(byte to) {
-        return moves.stream().filter(m -> m.to() == to).findFirst();
     }
 
     @Override

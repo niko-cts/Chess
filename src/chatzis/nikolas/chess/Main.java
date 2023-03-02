@@ -1,9 +1,9 @@
-package chatzis.nikolas.schachreader;
+package chatzis.nikolas.chess;
 
-import chatzis.nikolas.schachreader.game.Board;
-import chatzis.nikolas.schachreader.move.Move;
-import chatzis.nikolas.schachreader.pieces.Piece;
-import chatzis.nikolas.schachreader.utils.FieldNameConverter;
+import chatzis.nikolas.chess.game.Board;
+import chatzis.nikolas.chess.move.Move;
+import chatzis.nikolas.chess.pieces.Piece;
+import chatzis.nikolas.chess.utils.FieldNameConverter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
