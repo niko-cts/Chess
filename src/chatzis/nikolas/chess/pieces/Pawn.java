@@ -38,21 +38,21 @@ public class Pawn extends Piece {
                     if (board.getLastMove().to() == currentPosition - 1 && board.getLastMove().from() == currentPosition + 15) {
                         byte lastTo = board.getLastMove().to();
                         pieceMoveList.add(new SpecialMove(name, currentPosition,
-                                (byte) (board.getLastMove().to() + 8), ((pieceSet, piece) -> pieceSet[lastTo] = null)));
+                                (byte) (board.getLastMove().to() + 8), ((pieceSet) -> pieceSet[lastTo] = null)));
                     } else if (board.getLastMove().to() == currentPosition + 1 && board.getLastMove().from() == currentPosition + 17) {
                         byte lastTo = board.getLastMove().to();
                         pieceMoveList.add(new SpecialMove(name, currentPosition,
-                                (byte) (board.getLastMove().to() + 8),  ((pieceSet, piece) -> pieceSet[lastTo] = null)));
+                                (byte) (board.getLastMove().to() + 8),  (pieceSet -> pieceSet[lastTo] = null)));
                     }
                 } else if (belong.equals(Player.BLACK) && currentPosition / 8 == 3 && board.getLastMove().to() / 8 == 3) {
                     if (board.getLastMove().to() == currentPosition - 1 && board.getLastMove().from() == currentPosition - 17) {
                         byte lastTo = board.getLastMove().to();
                         pieceMoveList.add(new SpecialMove(name, currentPosition,
-                                (byte) (board.getLastMove().to() - 8),  ((pieceSet, piece) -> pieceSet[lastTo] = null)));
+                                (byte) (board.getLastMove().to() - 8),  (pieceSet -> pieceSet[lastTo] = null)));
                     } else if (board.getLastMove().to() == currentPosition + 1 && board.getLastMove().from() == currentPosition - 15) {
                         byte lastTo = board.getLastMove().to();
                         pieceMoveList.add(new SpecialMove(name, currentPosition,
-                                (byte) (board.getLastMove().to() - 8), ((pieceSet, piece) -> pieceSet[lastTo] = null)));
+                                (byte) (board.getLastMove().to() - 8), (pieceSet -> pieceSet[lastTo] = null)));
                     }
                 }
             }
@@ -91,7 +91,7 @@ public class Pawn extends Piece {
      * @return {@link Piece} - copies instance
      */
     @Override
-    public Piece copy() {
+    public Piece clone() {
         return new Pawn(belong, currentPosition);
     }
 

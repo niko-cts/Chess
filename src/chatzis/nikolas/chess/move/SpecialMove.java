@@ -25,9 +25,8 @@ public class SpecialMove extends Move {
         /**
          * Method will be called as soon as the piece is moved.
          * @param pieces Piece[] - the updated piece set
-         * @param movedPiece - the moved piece instance
          */
-        void moved(Piece[] pieces, Piece movedPiece);
+        void moved(Piece[] pieces);
 
     }
 }

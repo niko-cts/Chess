@@ -4,19 +4,16 @@ import chatzis.nikolas.chess.game.Board;
 import chatzis.nikolas.chess.game.Player;
 import chatzis.nikolas.chess.move.PieceMoveList;
 
-public class Rook extends RememberMovePiece {
+public class Rook extends Piece {
 
     /**
      * Instantiates the class.
      *
      * @param player Player - the player the piece belongs to.
+     * @param position byte - the piece position
      */
     public Rook(Player player, byte position) {
-        this(player, false, position);
-    }
-
-    public Rook(Player player, boolean moved, byte position) {
-        super(player, 'R', moved, position);
+        super (player, 'R', position);
     }
 
     /**
@@ -36,7 +33,7 @@ public class Rook extends RememberMovePiece {
      * @return {@link Piece} - copies instance
      */
     @Override
-    public Piece copy() {
-        return new Rook(belong, moved, currentPosition);
+    public Piece clone() {
+        return new Rook(belong, currentPosition);
     }
 }

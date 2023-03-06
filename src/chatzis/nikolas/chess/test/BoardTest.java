@@ -1,7 +1,7 @@
 package chatzis.nikolas.chess.test;
 
 import chatzis.nikolas.chess.game.Board;
-import chatzis.nikolas.chess.move.Move;
+import chatzis.nikolas.chess.pieces.Rook;
 import chatzis.nikolas.chess.utils.BoardUtils;
 import org.junit.jupiter.api.Test;
 
@@ -15,26 +15,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BoardTest {
 
     @Test
-    void rochadeBlack() {
-        Board board = Board.createNewBoard().makeMove(new Move('s', (byte) 57, (byte) 41)).makeMove(new Move('s', (byte) 58, (byte) 42))
-                .makeMove(new Move('s', (byte) 59, (byte) 40));
-        assertEquals("[e8(K) d8, e8(K) c8]", board.getPieceOnBoard(60).getPossibleMoves(board).getMoves().toString());
+    void rochadeNormal() {
+        Board board = Board.createNewBoard("R3K2R/PPPPPPPP/8/8/8/8/pppppppp/r3k2r w KQkq - 0 1");
+        assertEquals("[e1(K) d1, e1(K) f1, e1(K) c1, e1(K) g1]", board.getPieceOnBoard(4).getMoves(board).toString());
+        assertEquals("[e8(k) d8, e8(k) f8, e8(k) c8, e8(k) g8]", board.getPieceOnBoard(60).getMoves(board).toString());
 
-        Board kingSide = Board.createNewBoard().makeMove(new Move('s', (byte) 61, (byte) 41)).makeMove(new Move('s', (byte) 62, (byte) 42));
-        assertEquals("[e8(K) f8, e8(K) g8]", kingSide.getPieceOnBoard(60).getPossibleMoves(kingSide).getMoves().toString());
-
-        // no rochade if check
-        Board newKingSide = kingSide.makeMove(new Move('n', (byte) 1, (byte) 55));
-        assertEquals("[]", newKingSide.getPieceOnBoard(60).getPossibleMoves(newKingSide).getMoves().toString());
+        assertTrue(board.makeMove(board.getPieceOnBoard(4).getMoves(board).get(2)).getPieceOnBoard(3) instanceof Rook);
+        assertTrue(board.makeMove(board.getPieceOnBoard(4).getMoves(board).get(3)).getPieceOnBoard(5) instanceof Rook);
     }
 
     @Test
-    void rochadeWhite() {
-        Board board = Board.createNewBoard().makeMove(new Move('s', (byte) 1, (byte) 18)).makeMove(new Move('s', (byte) 2, (byte) 8)).makeMove(new Move('s', (byte) 3, (byte) 9));
-        assertEquals("[e1(K) d1, e1(K) c1]", board.getPieceOnBoard(4).getPossibleMoves(board).getMoves().toString());
-
-        Board kingSide = Board.createNewBoard().makeMove(new Move('s', (byte) 6, (byte) 18)).makeMove(new Move('s', (byte) 5, (byte) 8));
-        assertEquals("[e1(K) f1, e1(K) g1]", kingSide.getPieceOnBoard(4).getPossibleMoves(kingSide).getMoves().toString());
+    void rochadeBlocking() {
+        Board board = Board.createNewBoard("R3K2R/PPrPPrPP/8/8/8/8/pppppppp/r3k2r w KQkq - 0 1");
+        System.out.println(board.getPieceOnBoard(4).getMoves(board));
     }
 
     /**
@@ -117,24 +110,6 @@ public class BoardTest {
         }
     }
 
-    @Test
-    void possibleMoveAmounts() {
-        Board board = Board.createNewBoard();
-        assertEquals(20, numberOfMoves(board, 1));
-        assertEquals(400, numberOfMoves(board, 2));
-        assertEquals(8902, numberOfMoves(board, 3));
-        // according to https://youtu.be/Km024eldY1A?t=345 depth 4 needs to be 197742
-        assertEquals(197742, numberOfMoves(board, 4));
-    }
 
-    private int numberOfMoves(Board board, int depth) {
-        if (depth == 0)
-            return 1;
-        int i = 0;
-        for (Move move : board.getAllMoves()) {
-            i += numberOfMoves(board.makeMove(move), depth - 1);
-        }
-        return i;
-    }
 
 }

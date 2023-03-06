@@ -1,16 +1,19 @@
 package chatzis.nikolas.chess.game;
 
-import java.util.Objects;
+public enum Player {
 
-public class Player {
-
-    public static final Player WHITE = new Player('W');
-    public static final Player BLACK = new Player('B');
+    WHITE('W', (byte) 7, (byte) 0),
+    BLACK('B', (byte) 63, (byte) 56);
 
     private final char name;
+    private final byte kingSidedRookStartingPosition;
+    private final byte queenSidedRookStartingPosition;
 
-    private Player(char name) {
+
+    Player(char name, byte kingSidedRookStartingPosition, byte queenSidedRookStartingPosition) {
         this.name = name;
+        this.kingSidedRookStartingPosition = kingSidedRookStartingPosition;
+        this.queenSidedRookStartingPosition = queenSidedRookStartingPosition;
     }
 
     public char getName() {
@@ -18,33 +21,31 @@ public class Player {
     }
 
     /**
+     * Returns the starting position of the king sided rook.
+     * @return byte - starting pos of king sided rook.
+     */
+    public byte getKingSidedRookStartingPosition() {
+        return kingSidedRookStartingPosition;
+    }
+
+    /**
+     * Returns the starting position of the queen sided rook.
+     * @return byte - starting pos of queen sided rook.
+     */
+    public byte getQueenSidedRookStartingPosition() {
+        return queenSidedRookStartingPosition;
+    }
+
+    /**
      * Returns the next player.
      * @return Player - the next player.
      */
     public Player nextPlayer() {
-        return this.name == 'W' ? BLACK : WHITE;
+        return this == WHITE ? BLACK : WHITE;
     }
 
     @Override
     public String toString() {
         return "Player " + this.name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Player player = (Player) o;
-        return name == player.name;
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
     }
 }

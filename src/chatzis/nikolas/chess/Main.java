@@ -55,7 +55,7 @@ public class Main {
                         System.err.println("No piece");
                         continue;
                     }
-                    moves = fromPiece.getPossibleMoves(board).getMoves();
+                    moves = fromPiece.getMoves(board);
                     printMoves(moves);
 
                     System.out.println("Selected " + fromPiece);

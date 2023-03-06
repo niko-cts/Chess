@@ -32,7 +32,7 @@ public class Queen extends Piece {
      * @return {@link Piece} - copies instance
      */
     @Override
-    public Piece copy() {
+    public Piece clone() {
         return new Queen(belong, currentPosition);
     }
 }

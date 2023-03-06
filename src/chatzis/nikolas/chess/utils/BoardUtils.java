@@ -1,8 +1,6 @@
 package chatzis.nikolas.chess.utils;
 
-import chatzis.nikolas.chess.game.Board;
 import chatzis.nikolas.chess.game.Player;
-import chatzis.nikolas.chess.move.Move;
 import chatzis.nikolas.chess.pieces.*;
 
 public class BoardUtils {
@@ -34,27 +32,12 @@ public class BoardUtils {
     }
 
     /**
-     * Checks if the king is in check after doing the given move.
-     * @param currentBoard Board - the current board.
-     * @param move Move - the move to do
-     * @return boolean - king is not in check.
+     * Returns the piece instance.
+     * @param name char - the name character.
+     * @param i byte - the position of the piece.
+     * @return {@link Piece} - the piece.
+     * @since 1.0-SNAPSHOT
      */
-    public static boolean kingIsntChecked(Board currentBoard, Move move) {
-        Board board = currentBoard.makeMove(move, true);
-
-        int kingPos = board.getKingPosition(currentBoard.getCurrentPlayer());
-        return board.getAllMoves().stream().noneMatch(m -> m.to() == kingPos);
-    }
-
-    /**
-     * Checks if the king is in check.
-     * @param board Board - the current board.
-     * @return boolean - king is not in check.
-     */
-    public static boolean kingIsntChecked(Board board) {
-        return kingIsntChecked(board, null);
-    }
-
     public static Piece getPieceByChar(char name, byte i) {
         switch (name) {
             case 'B' -> {

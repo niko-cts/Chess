@@ -37,7 +37,7 @@ public class Knight extends Piece {
      * @return {@link Piece} - copies instance
      */
     @Override
-    public Piece copy() {
+    public Piece clone() {
         return new Knight(belong, currentPosition);
     }
 }

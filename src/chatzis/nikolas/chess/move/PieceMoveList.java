@@ -2,8 +2,6 @@ package chatzis.nikolas.chess.move;
 
 import chatzis.nikolas.chess.game.Board;
 import chatzis.nikolas.chess.pieces.Piece;
-import chatzis.nikolas.chess.pieces.RememberMovePiece;
-import chatzis.nikolas.chess.utils.BoardUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,19 +29,16 @@ public class PieceMoveList {
      * @param move Move - the move to add
      */
     public void add(Move move) {
-        if (board.isSimulated() || BoardUtils.kingIsntChecked(board, move))
-           moves.add(move);
+        if (board.kingIsNotInCheckAfterMove(move))
+            moves.add(move);
     }
 
     /**
-     * Creates a {@link Move} or {@link SpecialMove} instance based on the extending {@link Piece} class.
+     * Creates a {@link Move} instance based on the {@link Piece} class.
      * @param to int - the position to move.
      */
     public void add(int to) {
-        if (movingPiece instanceof RememberMovePiece && ((RememberMovePiece) movingPiece).hasntMoved())
-            add(new SpecialMove(movingPiece.getName(), movingPiece.getCurrentPosition(), (byte) to, ((pieces, piece) -> ((RememberMovePiece) piece).moved())));
-        else
-            add(new Move(movingPiece.getName(), movingPiece.getCurrentPosition(), (byte) to));
+        add(new Move(movingPiece.getName(), movingPiece.getCurrentPosition(), (byte) to));
     }
 
 

@@ -2,9 +2,11 @@ package chatzis.nikolas.chess.pieces;
 
 import chatzis.nikolas.chess.game.Board;
 import chatzis.nikolas.chess.game.Player;
+import chatzis.nikolas.chess.move.Move;
 import chatzis.nikolas.chess.move.PieceMoveList;
 import chatzis.nikolas.chess.utils.BoardUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -12,7 +14,7 @@ import java.util.Objects;
  * @author Nikolas Chatzis
  * @since 1.0-SNAPSHOT
  */
-public abstract class Piece {
+public abstract class Piece implements Cloneable {
 
     protected final Player belong;
     protected final char name;
@@ -35,7 +37,17 @@ public abstract class Piece {
      * @param board {@link Board} - the board.
      * @return List<{@link Move}> - every move the piece can make.
      */
-    public abstract PieceMoveList getPossibleMoves(Board board);
+    protected abstract PieceMoveList getPossibleMoves(Board board);
+
+    /**
+     * Get all the legal moves of the piece.
+     * @param board Board - the board to check.
+     * @return List<Move> - all the moves
+     */
+    public List<Move> getMoves(Board board) {
+        return getPossibleMoves(board).getMoves();
+    }
+
 
     /**
      * Checks if given toPosition is movable or stackable then adds to the moveList.
@@ -45,7 +57,7 @@ public abstract class Piece {
     protected void addMoveWhenMoveableOrAttackable(PieceMoveList pieceMoveList, byte toPosition) {
         if (BoardUtils.staysOnBoard(currentPosition, toPosition)) {
             Piece pieceOnBoard = pieceMoveList.getBoard().getPieceOnBoard(toPosition);
-            if (pieceOnBoard == null || pieceOnBoard.isntSamePlayer(belong))
+            if (pieceOnBoard == null || pieceOnBoard.isNotSamePlayer(belong))
                 pieceMoveList.add(toPosition); // checks if owned king would be under attack
         }
     }
@@ -89,11 +101,11 @@ public abstract class Piece {
     }
 
     /**
-     * Check if the piece belongs to the give player.
+     * Check if the piece belongs to the given player.
      * @return boolean - piece belongs to the same player.
      */
-    public boolean isntSamePlayer(Player player) {
-        return !belong.equals(player);
+    public boolean isNotSamePlayer(Player player) {
+        return belong != player;
     }
 
     @Override
@@ -104,7 +116,6 @@ public abstract class Piece {
     public byte getCurrentPosition() {
         return currentPosition;
     }
-
     public void setCurrentPosition(byte currentPosition) {
         this.currentPosition = currentPosition;
     }
@@ -113,16 +124,15 @@ public abstract class Piece {
         return name;
     }
 
-    /**
-     * Copies the instance of this class.
-     * @return {@link Piece} - copies instance
-     */
-    public abstract Piece copy();
-
-
     public Player getBelong() {
         return belong;
     }
+
+    /**
+     * Copies the instance of this class.
+     * @return {@link Piece} - copied instance
+     */
+    public abstract Piece clone();
 
     @Override
     public boolean equals(Object o) {

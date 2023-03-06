@@ -27,7 +27,7 @@ public class Bishop extends Piece {
      * @return {@link Piece} - copies instance
      */
     @Override
-    public Piece copy() {
+    public Piece clone() {
         return new Bishop(belong, currentPosition);
     }
 
