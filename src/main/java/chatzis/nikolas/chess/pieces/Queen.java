@@ -2,7 +2,6 @@ package chatzis.nikolas.chess.pieces;
 
 import chatzis.nikolas.chess.game.Board;
 import chatzis.nikolas.chess.game.Player;
-import chatzis.nikolas.chess.move.PieceMoveList;
 
 public class Queen extends Piece {
 
@@ -16,14 +15,13 @@ public class Queen extends Piece {
     }
 
     /**
-     * Lists every possible move the piece can make with the given board.
-     *
-     * @param board           {@link Board} - the board.
-     * @return List<{ @ link Move }> - every move the piece can make.
+     * Adds every possible move the piece can make to hashset.
+     * @param board {@link Board} - the board.
+     * @since 1.1-SNAPSHOT
      */
     @Override
-    public PieceMoveList getPossibleMoves(Board board) {
-        return getRepeatingMove(board, new int[]{1, 7, 8, 9});
+    public void addPossibleMoves(Board board) {
+        addRepeatingMove(board, new int[]{1, 7, 8, 9});
     }
 
     /**

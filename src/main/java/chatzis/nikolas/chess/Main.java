@@ -9,10 +9,8 @@ import chatzis.nikolas.chess.utils.FieldNameConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * Main class to play chatzis.nikolas.chess in the console.
@@ -42,20 +40,18 @@ public class Main {
 
         // Reading data using readLine
         String name;
-        String from = "";
-        List<Move> moves = new ArrayList<>();
+        Piece fromPiece = null;
+        Set<Byte> moves;
         while (!(name = reader.readLine()).isEmpty()) {
             if (name.equalsIgnoreCase("exit")) {
-                from = "";
                 board = Board.createNewBoard();
                 continue;
             }
             try {
 
-                if (from.isEmpty()) {
+                if (fromPiece == null) {
                     byte fieldNr = FieldNameConverter.fromFieldName(name);
-                    from = name;
-                    Piece fromPiece = board.getPieceOnBoard(fieldNr);
+                    fromPiece = board.getPieceOnBoard(fieldNr);
                     if (fromPiece == null) {
                         System.err.println("No piece");
                         continue;
@@ -66,18 +62,18 @@ public class Main {
                     System.out.println("Selected " + fromPiece);
                 } else {
                     byte to = FieldNameConverter.fromFieldName(name);
-                    Optional<Move> move = moves.stream().filter(m -> m.to() == to).findFirst();
-                    from = "";
-                    if (move.isEmpty()) {
+                    Move move = fromPiece.getMove(to);
+                    fromPiece = null;
+                    if (move == null) {
                         System.err.println("No possible move.");
                         System.err.println("Selected new starting point.");
                         continue;
                     }
-                    board = board.makeMove(move.get());
+                    board = board.makeMove(move);
 
                     System.out.println(board);
 
-                    if (board.getAllMoves().isEmpty()) {
+                    if (board.getAllMovePositions().isEmpty()) {
                         System.out.println("Checkmate");
                         return;
                     }
@@ -90,11 +86,11 @@ public class Main {
         }
     }
 
-    private void printMoves(List<Move> possibleMoves) {
+    private void printMoves(Set<Byte> possibleMoves) {
         StringBuilder builder = new StringBuilder();
         builder.append(possibleMoves.size()).append(" Moves: ");
-        for (Move possibleMove : possibleMoves) {
-            builder.append(possibleMove).append(", ");
+        for (Byte possibleMove : possibleMoves) {
+            builder.append(FieldNameConverter.fromFieldNumber(possibleMove)).append(", ");
         }
         System.out.println(builder);
     }

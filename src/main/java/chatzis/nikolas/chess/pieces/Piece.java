@@ -3,11 +3,11 @@ package chatzis.nikolas.chess.pieces;
 import chatzis.nikolas.chess.game.Board;
 import chatzis.nikolas.chess.game.Player;
 import chatzis.nikolas.chess.move.Move;
-import chatzis.nikolas.chess.move.PieceMoveList;
 import chatzis.nikolas.chess.utils.BoardUtils;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Abstract piece class which holds necessary information about owner, name and current position.
@@ -19,7 +19,9 @@ public abstract class Piece implements Cloneable {
     protected final Player belong;
     protected final char name;
     protected byte currentPosition;
-    private List<Move> pieceMoves;
+    private final Move[] possibleMoves;
+    private Set<Byte> toMoves;
+
 
     /**
      * Instantiates the class.
@@ -31,37 +33,61 @@ public abstract class Piece implements Cloneable {
         this.belong = player;
         this.name = player.equals(Player.BLACK) ? (name + "").toLowerCase().charAt(0) :  name;
         this.currentPosition = currentPosition;
+        this.possibleMoves = new Move[64];
     }
 
     /**
-     * Lists every possible move the piece can make with the given board.
+     * Adds every possible move the piece can make to hashset.
      * @param board {@link Board} - the board.
-     * @return List<{@link Move}> - every move the piece can make.
+     * @since 1.1-SNAPSHOT
      */
-    protected abstract PieceMoveList getPossibleMoves(Board board);
+    protected abstract void addPossibleMoves(Board board);
 
-    /**
-     * Get all the legal moves of the piece.
-     * @param board Board - the board to check.
-     * @return List<Move> - all the moves
-     */
-    public List<Move> getMoves(Board board) {
-        if (pieceMoves == null)
-            pieceMoves = getPossibleMoves(board).getMoves();
-        return pieceMoves;
+    protected void add(Board board, Move move) {
+        if (board.kingIsNotInCheckAfterMove(move)) {
+            possibleMoves[move.to()] = move;
+            toMoves.add(move.to());
+        }
     }
 
+    protected void add(Board board, int to) {
+        add(board, (byte) to);
+    }
+
+    protected void add(Board board, byte to) {
+        if (board.kingIsNotInCheckAfterMove(new Move(name, currentPosition, to))) {
+            toMoves.add(to);
+        }
+    }
+
+    public Move getMove(byte toPos) {
+        Move move = possibleMoves[toPos];
+        return move != null ? move : new Move(name, currentPosition, toPos);
+    }
+
+    /**
+     * Get all the legal move positions of the piece.
+     * @param board Board - the board to get the positions.
+     * @return Set<Move> - all the to-positions
+     */
+    public Set<Byte> getMoves(Board board) {
+        if (toMoves == null) {
+            toMoves = new HashSet<>();
+            addPossibleMoves(board);
+        }
+        return toMoves;
+    }
 
     /**
      * Checks if given toPosition is movable or stackable then adds to the moveList.
-     * @param pieceMoveList {@link PieceMoveList} - move list to add.
+     * @param board {@link Board} - the board to add.
      * @param toPosition byte - position to check and move to.
      */
-    protected void addMoveWhenMoveableOrAttackable(PieceMoveList pieceMoveList, byte toPosition) {
+    protected void addMoveWhenMoveableOrAttackable(Board board, int toPosition) {
         if (BoardUtils.staysOnBoard(currentPosition, toPosition)) {
-            Piece pieceOnBoard = pieceMoveList.getBoard().getPieceOnBoard(toPosition);
+            Piece pieceOnBoard = board.getPieceOnBoard(toPosition);
             if (pieceOnBoard == null || pieceOnBoard.isNotSamePlayer(belong))
-                pieceMoveList.add(toPosition); // checks if owned king would be under attack
+                add(board, toPosition); // checks if owned king would be under attack
         }
     }
 
@@ -70,28 +96,23 @@ public abstract class Piece implements Cloneable {
      * Gets a repeating pattern from the current position till the piece cannot move further.
      * @param board {@link Board} - the board
      * @param pattern int[] - the moving pattern.
-     * @return List<{@link Move}> - all moves
      */
-    protected PieceMoveList getRepeatingMove(Board board, int[] pattern) {
-        PieceMoveList pieceMoveList = new PieceMoveList(board, this);
-
+    protected void addRepeatingMove(Board board, int[] pattern) {
         for (int i : pattern) {
             for (byte m : new byte[]{1, -1}) {
                 i *= m;
                 byte copiedPosition = currentPosition;
                 byte movingPosition = (byte) (currentPosition + i);
                 while (board.canMove(copiedPosition, movingPosition)) {
-                    pieceMoveList.add(movingPosition);
+                    add(board, movingPosition);
                     copiedPosition = movingPosition;
                     movingPosition += i;
                 }
 
                 if (BoardUtils.staysOnBoard(copiedPosition, movingPosition) && board.isEnemyPiece(belong, movingPosition))
-                    pieceMoveList.add(movingPosition);
+                    add(board, movingPosition);
             }
         }
-
-        return pieceMoveList;
     }
 
     /**
@@ -107,9 +128,6 @@ public abstract class Piece implements Cloneable {
         return this.name + "(" + currentPosition + ")";
     }
 
-    public byte getCurrentPosition() {
-        return currentPosition;
-    }
     public void setCurrentPosition(byte currentPosition) {
         this.currentPosition = currentPosition;
     }
@@ -140,4 +158,5 @@ public abstract class Piece implements Cloneable {
     public int hashCode() {
         return Objects.hash(belong, name, currentPosition);
     }
+
 }

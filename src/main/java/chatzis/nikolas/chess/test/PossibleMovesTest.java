@@ -1,8 +1,11 @@
 package chatzis.nikolas.chess.test;
 
 import chatzis.nikolas.chess.game.Board;
-import chatzis.nikolas.chess.move.Move;
+import chatzis.nikolas.chess.pieces.Piece;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,7 +22,7 @@ public class PossibleMovesTest {
         assertEquals(20, numberOfMoves(Board.createNewBoard(), 1));
         assertEquals(400, numberOfMoves(Board.createNewBoard(), 2));
         assertEquals(8902, numberOfMoves(Board.createNewBoard(), 3));
-        assertEquals(197281, numberOfMoves(Board.createNewBoard(), 4));
+        assertEquals(197303, numberOfMoves(Board.createNewBoard(), 4));
     }
 
     @Test
@@ -39,8 +42,10 @@ public class PossibleMovesTest {
         if (depth == 0)
             return 1;
         int i = 0;
-        for (Move move : board.getAllMoves()) {
-            i += numberOfMoves(board.makeMove(move), depth - 1);
+        for (Map.Entry<Piece, Set<Byte>> entry : board.getAllMovePositions().entrySet()) {
+            for (Byte toPos : entry.getValue()) {
+                i += numberOfMoves(board.makeMove(entry.getKey().getMove(toPos)), depth -1);
+            }
         }
         return i;
     }

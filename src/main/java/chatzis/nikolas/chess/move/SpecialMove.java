@@ -2,6 +2,8 @@ package chatzis.nikolas.chess.move;
 
 import chatzis.nikolas.chess.pieces.Piece;
 
+import java.util.Map;
+
 /**
  * Class with interface, that gets called as soon as the piece moves.
  * Extends {@link Move}
@@ -24,9 +26,9 @@ public class SpecialMove extends Move {
 
         /**
          * Method will be called as soon as the piece is moved.
-         * @param pieces Piece[] - the updated piece set
+         * @param pieces Map<Byte, Piece> - the updated piece set
          */
-        void moved(Piece[] pieces);
+        void moved(Map<Byte, Piece> pieces);
 
     }
 }

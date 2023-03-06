@@ -1,16 +1,15 @@
 package chatzis.nikolas.chess.gui;
 
 import chatzis.nikolas.chess.game.Board;
-import chatzis.nikolas.chess.move.Move;
 import chatzis.nikolas.chess.pieces.King;
 import chatzis.nikolas.chess.pieces.Piece;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The GUI class to display the Jframe.
@@ -27,7 +26,8 @@ public class ChessGUI extends JFrame {
     // game related
     private Board currentBoard;
     private int selected;
-    private List<Move> moves;
+    private Piece piece;
+    private Set<Byte> moves;
     private boolean checkMate;
 
     /**
@@ -47,7 +47,7 @@ public class ChessGUI extends JFrame {
 
 
         this.fields = new JButton[64];
-        this.moves = new ArrayList<>();
+        this.moves = new HashSet<>();
         JPanel panel = new JPanel(new GridLayout(8, 8));
         panel.setSize(new Dimension(512, 512));
         this.selected = -1;
@@ -78,7 +78,8 @@ public class ChessGUI extends JFrame {
         this.currentBoard = board;
         this.moves.clear();
         this.selected = -1;
-        this.checkMate = currentBoard.getAllMoves().isEmpty();
+        this.piece = null;
+        this.checkMate = currentBoard.getAllMovePositions().isEmpty();
         if (checkMate)
             System.out.println("Checkmate!");
         paintButtons();
@@ -105,6 +106,7 @@ public class ChessGUI extends JFrame {
     private void fieldPressed(int i) {
         if (checkMate)
             return;
+
         if (i == selected) {
             moves.clear();
             selected = -1;
@@ -113,18 +115,19 @@ public class ChessGUI extends JFrame {
             return;
         }
 
-        Piece piece = currentBoard.getPieceOnBoard(i);
-        if (piece != null && piece.getBelong() == currentBoard.getCurrentPlayer()) {
-            moves = piece.getMoves(currentBoard);
+        Piece clickingPiece = currentBoard.getPieceOnBoard(i);
+        if (clickingPiece != null && clickingPiece.getBelong() == currentBoard.getCurrentPlayer()) {
+            this.piece = clickingPiece;
+            moves = clickingPiece.getMoves(currentBoard);
             this.selected = i;
             paintButtons();
             System.out.println("Selected: " + piece);
             return;
         }
 
-        moves.stream().filter(m -> m.to() == i).findFirst().ifPresent(m -> {
-            System.out.println(currentBoard.getCurrentPlayer() + " Moved: " + currentBoard.getPieceOnBoard(selected));
-            loadBoard(currentBoard.makeMove(m));
+        moves.stream().filter(m -> m == i).findFirst().ifPresent(m -> {
+            System.out.println(currentBoard.getCurrentPlayer() + " Moved: " + piece);
+            loadBoard(currentBoard.makeMove(piece.getMove(m)));
         });
     }
 
@@ -147,7 +150,7 @@ public class ChessGUI extends JFrame {
             if (!checkMate) {
                 if (selected == i) {
                     button.setBackground(Color.YELLOW);
-                } else if (moves.stream().anyMatch(m -> m.to() == pos)) {
+                } else if (moves.stream().anyMatch(m -> m == pos)) {
                     button.setBackground(currentBoard.getPieceOnBoard(i) == null ? Color.GREEN : Color.ORANGE);
                 }
             } else if (pieceOnBoard instanceof King && pieceOnBoard.getBelong() == currentBoard.getCurrentPlayer()) {
