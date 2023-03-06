@@ -30,6 +30,13 @@ public class BoardTest {
         System.out.println(board.getPieceOnBoard(4).getMoves(board));
     }
 
+    @Test
+    void checkMate() {
+        assertTrue(Board.createNewBoard("K7/qq6/8/8/8/8/8/k7 w - - 0 1").getAllMoves().isEmpty());
+        assertFalse(Board.createNewBoard("K7/q7/8/8/8/8/8/k7 w - - 0 1").getAllMoves().isEmpty());
+    }
+
+
     /**
      * To check if the {@link BoardUtils#staysOnBoard(int, int)} works properly.
      * Will try to position a piece from "one side to the other" over the edge of the board.

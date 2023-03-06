@@ -1,1 +1,1 @@
-This is a default chess game played via the console.
+This is a default chatzis.nikolas.chess game played via the console.

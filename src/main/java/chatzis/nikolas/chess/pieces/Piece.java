@@ -19,6 +19,7 @@ public abstract class Piece implements Cloneable {
     protected final Player belong;
     protected final char name;
     protected byte currentPosition;
+    private List<Move> pieceMoves;
 
     /**
      * Instantiates the class.
@@ -45,7 +46,9 @@ public abstract class Piece implements Cloneable {
      * @return List<Move> - all the moves
      */
     public List<Move> getMoves(Board board) {
-        return getPossibleMoves(board).getMoves();
+        if (pieceMoves == null)
+            pieceMoves = getPossibleMoves(board).getMoves();
+        return pieceMoves;
     }
 
 
@@ -62,15 +65,6 @@ public abstract class Piece implements Cloneable {
         }
     }
 
-    /**
-     * Adds a move to the given list, if the fromPosition can attack the toPosition
-     * @param pieceMoveList {@link PieceMoveList} - the piece move list instance
-     * @param attackPosition int - the attackPosition.
-     */
-    protected void addMoveIfAttackable(PieceMoveList pieceMoveList, int attackPosition) {
-        if (BoardUtils.staysOnBoard(currentPosition, attackPosition) && pieceMoveList.getBoard().isEnemyPiece(belong, (byte) attackPosition))
-            pieceMoveList.add(attackPosition);
-    }
 
     /**
      * Gets a repeating pattern from the current position till the piece cannot move further.

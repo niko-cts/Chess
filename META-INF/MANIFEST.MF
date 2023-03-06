@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: chatzis.nikolas.chess.Main
+Class-Path: chatzis.nikolas.chess
+

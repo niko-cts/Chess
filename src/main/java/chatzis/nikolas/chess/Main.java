@@ -1,6 +1,7 @@
 package chatzis.nikolas.chess;
 
 import chatzis.nikolas.chess.game.Board;
+import chatzis.nikolas.chess.gui.ChessGUI;
 import chatzis.nikolas.chess.move.Move;
 import chatzis.nikolas.chess.pieces.Piece;
 import chatzis.nikolas.chess.utils.FieldNameConverter;
@@ -9,26 +10,30 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Main class to play chess in the console.
+ * Main class to play chatzis.nikolas.chess in the console.
  * @author Nikolas Chatzis
  * @since 1.0-SNAPSHOT
  */
 public class Main {
 
     /**
-     * Starts default chess in the console.
-     * Type in line by line to move pieces:
-     * e.g:
-     * b1
-     * c3
+     * Starts default chess in {@link chatzis.nikolas.chess.gui.ChessGUI}
      * @param args String[] - arguments
-     * @throws IOException - exception with console reader.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        new ChessGUI(args.length == 0 ? Board.createNewBoard() : Board.createNewBoard(Arrays.toString(args).replace("[", "").replace("]", "")));
+    }
+
+    /**
+     * Instantiate this class to enable console playing.
+     * @throws IOException - Because of console reading
+     */
+    private Main() throws IOException {
         Board board = Board.createNewBoard();
         System.out.println(board);
 
@@ -85,7 +90,7 @@ public class Main {
         }
     }
 
-    private static void printMoves(List<Move> possibleMoves) {
+    private void printMoves(List<Move> possibleMoves) {
         StringBuilder builder = new StringBuilder();
         builder.append(possibleMoves.size()).append(" Moves: ");
         for (Move possibleMove : possibleMoves) {

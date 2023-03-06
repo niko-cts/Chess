@@ -3,11 +3,14 @@ package chatzis.nikolas.chess.game;
 import chatzis.nikolas.chess.move.Move;
 import chatzis.nikolas.chess.move.SpecialMove;
 import chatzis.nikolas.chess.pieces.King;
+import chatzis.nikolas.chess.pieces.Pawn;
 import chatzis.nikolas.chess.pieces.Piece;
 import chatzis.nikolas.chess.pieces.Rook;
 import chatzis.nikolas.chess.utils.BoardUtils;
+import chatzis.nikolas.chess.utils.FieldNameConverter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Board class to store every piece.
@@ -19,29 +22,26 @@ public class Board {
 
     private final Player currentPlayer;
     private final Piece[] pieceSet;
-    private final Map<Player, Set<Byte>> boardPieces;
     private final boolean[][] castlingRights; // white?: [king-sided?, queen-sided?]
-    private final Map<Player, List<Move>> possibleMoves;
     private final byte whiteKing;
     private final byte blackKing;
-    private final Move lastMove;
+    private final byte enPassant;
+    private final int simulationDepth;
     private Boolean kingInCheck;
-    private final boolean simulated;
 
     /**
      * Instantiates the class
      *
      * @param currentPlayer Player - the current player (white, black)
      * @param pieceSet      {@link Piece}[] - a 8*8 piece array (nullable)
-     * @param boardPieces   Map<Player, Set<Byte>> - every piece position of both players for quick player pieces access
      * @param whiteKing     {@link King} - the white king piece
      * @param blackKing     {@link King} - the black king piece
-     * @param lastMove      {@link Move} - the last move made
+     * @param enPassant      Byte - a possible en passant position
      * @param castleRights boolean[][] - castle rights like this: [[W-king-sided?, W-queen-sided?], [B-king-sided?, B-queen-sided?]]
      * @since 1.0-Snapshot
      */
-    private Board(Player currentPlayer, Piece[] pieceSet, Map<Player, Set<Byte>> boardPieces, byte whiteKing, byte blackKing, Move lastMove, boolean[][] castleRights) {
-        this (currentPlayer, pieceSet, boardPieces, whiteKing, blackKing, lastMove, castleRights, false);
+    private Board(Player currentPlayer, Piece[] pieceSet, byte whiteKing, byte blackKing, byte enPassant, boolean[][] castleRights) {
+        this (currentPlayer, pieceSet, whiteKing, blackKing, enPassant, castleRights, 0);
     }
 
     /**
@@ -49,24 +49,21 @@ public class Board {
      *
      * @param currentPlayer Player - the current player (white, black)
      * @param pieceSet      {@link Piece}[] - a 8*8 piece array (nullable)
-     * @param boardPieces   Map<Player, Set<Byte>> - every piece position of both players for quick player pieces access
      * @param whiteKing     {@link King} - the white king piece
      * @param blackKing     {@link King} - the black king piece
-     * @param lastMove      {@link Move} - the last move made
+     * @param enPassant      Byte - a possible en passant position
      * @param castleRights boolean[][] - castle rights like this: [[W-king-sided?, W-queen-sided?], [B-king-sided?, B-queen-sided?]]
-     * @param simulate Board - this board is simulated
+     * @param simulationDepth int - the simulated depth (until 2)
      * @since 1.0-Snapshot
      */
-    private Board(Player currentPlayer, Piece[] pieceSet, Map<Player, Set<Byte>> boardPieces, Byte whiteKing, Byte blackKing, Move lastMove, boolean[][] castleRights, boolean simulate) {
+    private Board(Player currentPlayer, Piece[] pieceSet, Byte whiteKing, Byte blackKing, byte enPassant, boolean[][] castleRights, int simulationDepth) {
         this.currentPlayer = currentPlayer;
         this.pieceSet = pieceSet;
-        this.boardPieces = boardPieces;
         this.whiteKing = whiteKing;
         this.blackKing = blackKing;
-        this.lastMove = lastMove;
+        this.enPassant = enPassant;
         this.castlingRights = castleRights;
-        this.possibleMoves = new EnumMap<>(Player.class);
-        this.simulated = simulate;
+        this.simulationDepth = simulationDepth;
     }
 
     /**
@@ -109,40 +106,26 @@ public class Board {
      * @return List<Move> - all moves the player can do.
      */
     public List<Move> getAllMoves(Player player) {
-        if (simulated)
+        if (this.simulationDepth == 2)
             return new ArrayList<>();
-        if (possibleMoves.containsKey(player))
-            return possibleMoves.get(player);
         List<Move> moves = new ArrayList<>();
-        Board newBoard = new Board(currentPlayer.nextPlayer(), pieceSet, boardPieces, whiteKing, blackKing, lastMove, castlingRights, true);
-        for (Byte piecePosition : this.boardPieces.get(player))
-            moves.addAll(pieceSet[piecePosition].getMoves(newBoard));
-        possibleMoves.put(player, moves);
+        Board newBoard = new Board(currentPlayer, pieceSet, whiteKing, blackKing, enPassant, castlingRights, this.simulationDepth + 1);
+        for (Piece piece : pieceSet) {
+            if (piece != null && piece.getBelong() == player)
+                moves.addAll(piece.getMoves(newBoard));
+        }
         return moves;
     }
 
     /**
      * Makes a move and returns a new board.
-     * Could be null, if the king would be in check with the given move.
-     *
      * @param move      {@link Move} - the move to make.
      * @return Board - the new board.
      */
     public Board makeMove(Move move) {
-        return makeMove(move, simulated);
-    }
-
-    /**
-     * Makes a move and returns a new board.
-     * Could be null, if the king would be in check with the given move.
-     *
-     * @param move      {@link Move} - the move to make.
-     * @param simulateBoard boolean - simulate the next board.
-     * @return Board - the new board.
-     */
-    public Board makeMove(Move move, boolean simulateBoard) {
         byte newWhiteKing = whiteKing;
         byte newBlackKing = blackKing;
+        byte newEnPassant = -1;
 
         // king position update
         if (move.from() == whiteKing || move.from() == blackKing) {
@@ -153,21 +136,15 @@ public class Board {
         }
 
         Piece[] newPieceSet = clonePieceSet();
-        Map<Player, Set<Byte>> newBoardPieces = clonePlayerPiecePositions();
-
-        if (newPieceSet[move.to()] != null) {
-            Set<Byte> enemyPieces = newBoardPieces.get(currentPlayer.nextPlayer());
-            enemyPieces.remove(move.to());
-        }
-
-        Set<Byte> playerPiecePositions = newBoardPieces.get(currentPlayer);
-        playerPiecePositions.remove(move.from());
-        playerPiecePositions.add(move.to());
-
         Piece movingPiece = newPieceSet[move.from()];
-        movingPiece.setCurrentPosition(move.to());
         newPieceSet[move.from()] = null;
         newPieceSet[move.to()] = movingPiece;
+        movingPiece.setCurrentPosition(move.to());
+
+        if (movingPiece instanceof Pawn && Math.abs(move.from() - move.to()) == 16) {
+            // pawn jumped two rows
+            newEnPassant = (byte) (move.to() + (currentPlayer == Player.WHITE ? -8 : 8));
+        }
 
         if (move instanceof SpecialMove)
             ((SpecialMove) move).getMove().moved(newPieceSet);
@@ -184,19 +161,7 @@ public class Board {
                 newCastleRights[currentPlayer.ordinal()][0] = false;
         }
 
-        return new Board(currentPlayer.nextPlayer(), newPieceSet, newBoardPieces, newWhiteKing, newBlackKing, move, newCastleRights, simulateBoard);
-    }
-
-    /**
-     * Clones all player pieces.
-     *
-     * @return Map<Player, Set < Piece>> - new player piece set
-     */
-    private Map<Player, Set<Byte>> clonePlayerPiecePositions() {
-        Map<Player, Set<Byte>> pieceMap = new EnumMap<>(Player.class);
-        for (Player player : new Player[]{Player.WHITE, Player.BLACK})
-            pieceMap.put(player, new HashSet<>(this.boardPieces.get(player)));
-        return pieceMap;
+        return new Board(currentPlayer.nextPlayer(), newPieceSet, newWhiteKing, newBlackKing, newEnPassant, newCastleRights, this.simulationDepth);
     }
 
     /**
@@ -213,7 +178,7 @@ public class Board {
     }
 
     /**
-     * Creates a default chess board.
+     * Creates a default chatzis.nikolas.chess board.
      *
      * @return Board - default board.
      */
@@ -222,7 +187,7 @@ public class Board {
     }
 
     /**
-     * Creates a chess board with the given board data.
+     * Creates a chatzis.nikolas.chess board with the given board data.
      *
      * @param fen String - the Forsyth-Edwards Notation
      * @return Board - default board.
@@ -233,41 +198,31 @@ public class Board {
         String[] board = fenData[0].split("/");
 
         Piece[] pieces = new Piece[64];
+
+        byte whiteKing = 0;
+        byte blackKing = 0;
+
         int x = 0;
         for (String s : board) {
             for (char chessPieceChar : s.toCharArray()) {
                 try {
                     x += Integer.parseInt(chessPieceChar + ""); // Is number
                 } catch (NumberFormatException exception) {
-                    pieces[x] = BoardUtils.getPieceByChar(chessPieceChar, (byte) x);
+                    Piece piece = BoardUtils.getPieceByChar(chessPieceChar, (byte) x);
+                    pieces[x] = piece;
+                    if (piece instanceof King) {
+                        if (piece.getBelong().equals(Player.WHITE)) {
+                            whiteKing = (byte) x;
+                        } else {
+                            blackKing = (byte) x;
+                        }
+                    }
                     x++;
                 }
             }
         }
-
-        Map<Player, Set<Byte>> map = new EnumMap<>(Player.class);
-        byte whiteKing = 0;
-        byte blackKing = 0;
-
-        for (int i = 0; i < pieces.length; i++) {
-            if (pieces[i] != null) {
-                Piece piece = pieces[i];
-                Set<Byte> playerPieces = map.getOrDefault(piece.getBelong(), new HashSet<>());
-                playerPieces.add((byte) i);
-                map.put(piece.getBelong(), playerPieces);
-
-                if (piece instanceof King) {
-                    if (piece.getBelong().equals(Player.WHITE)) {
-                        whiteKing = (byte) i;
-                    } else {
-                        blackKing = (byte) i;
-                    }
-                }
-            }
-        }
-
         return new Board(fenData[1].equals("w") ? Player.WHITE : Player.BLACK,
-                pieces, map, whiteKing, blackKing, null,
+                pieces, whiteKing, blackKing, FieldNameConverter.fromFieldName(fenData[3]),
                 new boolean[][]{new boolean[]{fenData[2].contains("K"), fenData[2].contains("Q")}, new boolean[]{fenData[2].contains("k"), fenData[2].contains("q")}});
     }
 
@@ -294,7 +249,7 @@ public class Board {
         }
 
         return builder.append("\nA B C D E F G H\n")
-                .append(currentPlayer).append(" - ")
+                .append(currentPlayer).append(" ")
                 .append(castlingRights[0][0] ? "K" : "")
                 .append(castlingRights[0][1] ? "Q" : "")
                 .append(castlingRights[1][0] ? "k" : "")
@@ -304,11 +259,12 @@ public class Board {
     }
 
     /**
-     * Get the last move
-     * @return Move - the last move.
+     * Get possible en passant move.
+     * @return Byte - the position the enemey pawn could attack
+     * @since 1.1-SNAPSHOT
      */
-    public Move getLastMove() {
-        return lastMove;
+    public byte getEnPassant() {
+        return enPassant;
     }
 
     /**
@@ -317,9 +273,21 @@ public class Board {
      * @since 1.1-SNAPSHOT
      */
     public boolean kingIsNotChecked() {
+        return kingIsNotChecked(currentPlayer);
+    }
+
+    /**
+     * Check if the king is NOT currently checked.
+     * @param player Player - the player to check.
+     * @return boolean - king not checked
+     * @since 1.1-SNAPSHOT
+     */
+    private boolean kingIsNotChecked(Player player) {
+        if (this.simulationDepth > 1)
+            return true;
         if (kingInCheck == null) {
-            byte kingPosition = currentPlayer == Player.WHITE ? whiteKing : blackKing;
-            this.kingInCheck = getAllMoves(currentPlayer.nextPlayer()).stream().anyMatch(m -> m.to() == kingPosition);
+            byte kingPosition = player == Player.WHITE ? whiteKing : blackKing;
+            this.kingInCheck = getAllMoves(player.nextPlayer()).stream().anyMatch(m -> m.to() == kingPosition);
         }
         return !kingInCheck;
     }
@@ -331,7 +299,7 @@ public class Board {
      * @since 1.1-SNAPSHOT
      */
     public boolean kingIsNotInCheckAfterMove(Move move) {
-        return makeMove(move, true).kingIsNotChecked();
+        return this.simulationDepth > 1 || makeMove(move).kingIsNotChecked(currentPlayer);
     }
 
     /**
@@ -342,5 +310,9 @@ public class Board {
      */
     public boolean[] getCastlingRights(Player player) {
         return castlingRights[player.ordinal()];
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 }
